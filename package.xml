@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cras_imu_tools</name>
+  <version>1.0.0</version>
+  <description>Tools for working with IMU data</description>
+
+  <author email="peckama2@fel.cvut.cz">Martin Pecka</author>
+  <maintainer email="peckama2@fel.cvut.cz">Martin Pecka</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+
+  <build_depend>cras_cpp_common</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>topic_tools</build_depend>
+
+  <build_export_depend>imu_transformer</build_export_depend>
+  
+  <exec_depend>cras_cpp_common</exec_depend>
+  <exec_depend>imu_transformer</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  
+  <export>
+    <nodelet plugin="${prefix}/nodelet.xml" />
+  </export>
+</package>

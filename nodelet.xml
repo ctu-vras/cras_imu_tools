@@ -1,0 +1,7 @@
+<library path="lib/libcras_gyro_bias_remover_nodelet">
+  <class name="cras_imu_tools/gyro_bias_remover" type="cras::GyroBiasRemoverNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+      Observe and remove IMU gyro bias.
+    </description>
+  </class>
+</library>
