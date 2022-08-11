@@ -12,6 +12,7 @@
 
 #include <geometry_msgs/Vector3Stamped.h>
 #include <nav_msgs/Odometry.h>
+#include <ros/console.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <sensor_msgs/Imu.h>
@@ -42,7 +43,7 @@ protected:
   void produceDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat);
   void reportBiasChange();
   
-  void speak(const std::string& message);
+  void speak(const std::string& message, ros::console::levels::Level level);
   
   void onReset(const topic_tools::ShapeShifter&);
   void reset();
@@ -50,7 +51,9 @@ protected:
 private:
   std::unique_ptr<cras::DiagnosedPublisher<sensor_msgs::Imu>> imuPub;
   ros::Publisher biasPub;
-  ros::Publisher speakPub;
+  ros::Publisher speakInfoPub;
+  ros::Publisher speakWarnPub;
+  ros::Publisher speakErrPub;
   ros::Subscriber imuSub;
   ros::Subscriber isMovingSub;
   ros::Subscriber resetSub;

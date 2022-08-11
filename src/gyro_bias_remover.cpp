@@ -41,7 +41,9 @@ void GyroBiasRemoverNodelet::onInit()
   
   this->imuPub = this->advertiseDiagnosed<sensor_msgs::Imu>(nh, pnh, "output", "imu_unbiased/data", 100);
   this->biasPub = nh.advertise<geometry_msgs::Vector3Stamped>("imu/gyro_bias", 100, true);
-  this->speakPub = nh.advertise<std_msgs::String>("speak", 2);
+  this->speakInfoPub = nh.advertise<std_msgs::String>("speak/info", 2);
+  this->speakWarnPub = nh.advertise<std_msgs::String>("speak/warn", 2);
+  this->speakErrPub = nh.advertise<std_msgs::String>("speak/err", 2);
 
   this->imuSub = nh.subscribe("imu/data", 100, &GyroBiasRemoverNodelet::onImuMsg, this);
   this->isMovingSub = nh.subscribe("odom_cmd_vel", 100, &GyroBiasRemoverNodelet::onOdomMsg, this);
@@ -54,7 +56,7 @@ void GyroBiasRemoverNodelet::onInit()
   }
   
   this->log->logInfo("IMU calibration has started.");
-  this->speak("Calibrating gyro, do not move me.");
+  this->speak("Calibrating gyro, do not move me.", ros::console::levels::Warn);
 }
 
 void GyroBiasRemoverNodelet::onImuMsg(const sensor_msgs::ImuConstPtr& msg)
@@ -95,7 +97,7 @@ void GyroBiasRemoverNodelet::onOdomMsg(const nav_msgs::OdometryConstPtr& msg)
   if (isNowMoving && this->state == BiasObserverState::INITIAL_CALIBRATION)
   {
     ROS_ERROR("Robot has moved during IMU calibration!");
-    this->speak("Gyro calibration failed, I moved!");
+    this->speak("Gyro calibration failed, I moved!", ros::console::levels::Error);
   }
   
   if (isNowMoving)
@@ -162,7 +164,7 @@ void GyroBiasRemoverNodelet::estimateBias(const sensor_msgs::Imu& msg)
       else
         this->state = BiasObserverState::STOPPED_SHORT;
       this->log->logWarn("IMU calibration finished.");
-      this->speak("Gyros calibrated!");
+      this->speak("Gyros calibrated!", ros::console::levels::Warn);
       this->reportBiasChange();
     }
     else
@@ -250,11 +252,23 @@ void GyroBiasRemoverNodelet::reportBiasChange()
     this->gyroBias.vector.x, this->gyroBias.vector.y, this->gyroBias.vector.z);
 }
 
-void GyroBiasRemoverNodelet::speak(const std::string& message)
+void GyroBiasRemoverNodelet::speak(const std::string& message, const ros::console::levels::Level level)
 {
   std_msgs::String msg;
   msg.data = message;
-  this->speakPub.publish(msg);
+  
+  switch (level)
+  {
+    case ros::console::levels::Info:
+      this->speakInfoPub.publish(msg);
+      break;
+    case ros::console::levels::Warn:
+      this->speakWarnPub.publish(msg);
+      break;
+    default:
+      this->speakErrPub.publish(msg);
+      break;
+  }
 }
 
 }
