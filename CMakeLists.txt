@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
+  INCLUDE_DIRS include
   CATKIN_DEPENDS geometry_msgs imu_transformer sensor_msgs
 )
 
@@ -38,7 +39,6 @@ install(TARGETS cras_gyro_bias_remover_nodelet
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
 )
 
 install(FILES nodelet.xml
