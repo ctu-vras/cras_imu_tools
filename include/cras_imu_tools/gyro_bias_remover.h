@@ -10,12 +10,14 @@
 
 #include <memory>
 
+#include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/console.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <sensor_msgs/Imu.h>
+#include <std_msgs/Bool.h>
 #include <topic_tools/shape_shifter.h>
 
 #include <cras_cpp_common/nodelet_utils.hpp>
@@ -54,11 +56,16 @@ private:
   ros::Publisher speakInfoPub;
   ros::Publisher speakWarnPub;
   ros::Publisher speakErrPub;
+  ros::Publisher stopCommandPub;
+  ros::Publisher stopLockPub;
   ros::Subscriber imuSub;
   ros::Subscriber isMovingSub;
   ros::Subscriber resetSub;
   
   geometry_msgs::Vector3Stamped gyroBias;
+  geometry_msgs::Twist stopCommand;
+  std_msgs::Bool stopLockMsg;
+  std_msgs::Bool stopUnlockMsg;
   
   BiasObserverState state {BiasObserverState::INITIAL_CALIBRATION};
   

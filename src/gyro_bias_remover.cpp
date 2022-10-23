@@ -38,12 +38,16 @@ void GyroBiasRemoverNodelet::onInit()
     this->state = BiasObserverState::MOVING;
   
   this->calibrationStartedTime = ros::Time::now();
+  this->stopLockMsg.data = true;
+  this->stopUnlockMsg.data = false;
   
   this->imuPub = this->advertiseDiagnosed<sensor_msgs::Imu>(nh, pnh, "output", "imu_unbiased/data", 100);
   this->biasPub = nh.advertise<geometry_msgs::Vector3Stamped>("imu/gyro_bias", 100, true);
   this->speakInfoPub = nh.advertise<std_msgs::String>("speak/info", 2);
   this->speakWarnPub = nh.advertise<std_msgs::String>("speak/warn", 2);
   this->speakErrPub = nh.advertise<std_msgs::String>("speak/err", 2);
+  this->stopCommandPub = nh.advertise<geometry_msgs::Twist>("emergency_stop/cmd_vel", 2);
+  this->stopLockPub = nh.advertise<std_msgs::Bool>("emergency_stop", 2);
 
   this->imuSub = nh.subscribe("imu/data", 100, &GyroBiasRemoverNodelet::onImuMsg, this);
   this->isMovingSub = nh.subscribe("odom_cmd_vel", 100, &GyroBiasRemoverNodelet::onOdomMsg, this);
@@ -165,11 +169,14 @@ void GyroBiasRemoverNodelet::estimateBias(const sensor_msgs::Imu& msg)
         this->state = BiasObserverState::STOPPED_SHORT;
       this->log->logWarn("IMU calibration finished.");
       this->speak("Gyros calibrated!", ros::console::levels::Warn);
+      this->stopLockPub.publish(this->stopUnlockMsg);
       this->reportBiasChange();
     }
     else
     {
       this->log->logWarnThrottle(1.0, "IMU is calibrating, do not move the robot.");
+      this->stopCommandPub.publish(this->stopCommand);
+      this->stopLockPub.publish(this->stopLockMsg);
     }
   }
   else
