@@ -59,7 +59,7 @@ void GyroBiasRemoverNodelet::onInit()
     this->startDiagTimer();
   }
   
-  this->log->logInfo("IMU calibration has started.");
+  CRAS_INFO("IMU calibration has started.");
   this->speak("Calibrating gyro, do not move me.", ros::console::levels::Warn);
 }
 
@@ -67,7 +67,7 @@ void GyroBiasRemoverNodelet::onImuMsg(const sensor_msgs::ImuConstPtr& msg)
 {
   if (ros::Time::now() + ros::Duration(3) < this->lastReceiveTime)
   {
-    this->log->logWarn("ROS time has jumped back, resetting.");
+    CRAS_WARN("ROS time has jumped back, resetting.");
     this->reset();
   }
   this->lastReceiveTime = ros::Time::now();
@@ -88,7 +88,7 @@ void GyroBiasRemoverNodelet::onImuMsg(const sensor_msgs::ImuConstPtr& msg)
 void GyroBiasRemoverNodelet::onOdomMsg(const nav_msgs::OdometryConstPtr& msg)
 {
   this->hasOdomMsg = true;
-  this->log->logDebugThrottle(1.0, "State is %lu", this->state);
+  CRAS_DEBUG_THROTTLE(1.0, "State is %i", static_cast<std::underlying_type<BiasObserverState>::type>(this->state));
   
   const auto& v = msg->twist.twist.linear;
   const auto& w = msg->twist.twist.angular;
@@ -100,7 +100,7 @@ void GyroBiasRemoverNodelet::onOdomMsg(const nav_msgs::OdometryConstPtr& msg)
   
   if (isNowMoving && this->state == BiasObserverState::INITIAL_CALIBRATION)
   {
-    ROS_ERROR("Robot has moved during IMU calibration!");
+    CRAS_ERROR("Robot has moved during IMU calibration!");
     this->speak("Gyro calibration failed, I moved!", ros::console::levels::Error);
   }
   
@@ -167,14 +167,14 @@ void GyroBiasRemoverNodelet::estimateBias(const sensor_msgs::Imu& msg)
         this->state = BiasObserverState::STOPPED_LONG;
       else
         this->state = BiasObserverState::STOPPED_SHORT;
-      this->log->logWarn("IMU calibration finished.");
+      CRAS_WARN("IMU calibration finished.");
       this->speak("Gyros calibrated!", ros::console::levels::Warn);
       this->stopLockPub.publish(this->stopUnlockMsg);
       this->reportBiasChange();
     }
     else
     {
-      this->log->logWarnThrottle(1.0, "IMU is calibrating, do not move the robot.");
+      CRAS_WARN_THROTTLE(1.0, "IMU is calibrating, do not move the robot.");
       this->stopCommandPub.publish(this->stopCommand);
       this->stopLockPub.publish(this->stopLockMsg);
     }
@@ -255,7 +255,7 @@ void GyroBiasRemoverNodelet::produceDiagnostics(diagnostic_updater::DiagnosticSt
 
 void GyroBiasRemoverNodelet::reportBiasChange()
 {
-  this->log->logInfo("Estimated gyro bias is: x=%.6f y=%.6f z=%.6f",
+  CRAS_INFO("Estimated gyro bias is: x=%.6f y=%.6f z=%.6f",
     this->gyroBias.vector.x, this->gyroBias.vector.y, this->gyroBias.vector.z);
 }
 
