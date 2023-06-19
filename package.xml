@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>cras_imu_tools</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>Tools for working with IMU data</description>
 
   <author email="peckama2@fel.cvut.cz">Martin Pecka</author>
